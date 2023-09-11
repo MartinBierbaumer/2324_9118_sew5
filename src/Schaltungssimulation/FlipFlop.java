@@ -1,14 +1,14 @@
 package Schaltungssimulation;
 
 public class FlipFlop extends SchaltungImpl {
-    private Boolean state = false;
+    public boolean state = false;
 
     public FlipFlop() {
         super(2, 2);
+        state = false;
     }
 
-    @Override
-    protected Boolean[] calc(Boolean[] input) {
+    public Boolean[] calc(Boolean[] input) {
         if (input[0]) state = true;
         if (input[1]) state = false;
         return new Boolean[]{state, !state};
