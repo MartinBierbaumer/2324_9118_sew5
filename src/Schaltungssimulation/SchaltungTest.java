@@ -1,13 +1,17 @@
 package Schaltungssimulation;
 
-public class Schaltungstest {
-    public static void tick(Schaltung schaltungen[]) {
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+class SchaltungTest {
+    public void tick(Schaltung schaltungen[]) {
         for (Schaltung s: schaltungen) {
             s.tick();
         }
     }
 
-    public static void main(String[] args) {
+    @Test
+    public void test() {
         Taster t1 = new Taster(), t2 = new Taster();
         FlipFlop f = new FlipFlop();
         Led l1 = new Led(), l2 = new Led();
@@ -21,18 +25,21 @@ public class Schaltungstest {
         Schaltung s[] = new Schaltung[]{t1, t2, f, l1, l2};
 
         tick(s);
-        System.out.println("L1 " + l1.getState() + " L2 " + l2.getState());
+        Assertions.assertEquals(l1.getState(), false);
+        Assertions.assertEquals(l2.getState(), true);
 
         t1.set(true);
         tick(s);
         t1.set(false);
         tick(s);
-        System.out.println("L1 " + l1.getState() + " L2 " + l2.getState());
+        Assertions.assertEquals(l1.getState(), true);
+        Assertions.assertEquals(l2.getState(), false);
 
         t2.set(true);
         tick(s);
         t2.set(false);
         tick(s);
-        System.out.println("L1 " + l1.getState() + " L2 " + l2.getState());
+        Assertions.assertEquals(l1.getState(), false);
+        Assertions.assertEquals(l2.getState(), true);
     }
 }
