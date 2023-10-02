@@ -5,7 +5,6 @@ public class FlipFlop extends SchaltungImpl {
 
     public FlipFlop() {
         super(2, 2);
-        state = false;
     }
 
     public Boolean[] calc(Boolean[] input) {
