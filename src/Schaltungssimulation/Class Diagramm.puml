@@ -1,0 +1,35 @@
+@startuml
+abstract class Schaltung
+abstract class SchaltungImpl
+class Led
+class FF
+class Taster
+
+Schaltung : tick()
+Schaltung : connect(Schaltung, int source, int dest)
+Schaltung : Boolean get(int)
+
+SchaltungImpl : Port[] inputs
+SchaltungImpl : Boolean[] outputs
+SchaltungImpl : tick()
+SchaltungImpl : connect(Schaltung, int source, int dest)
+SchaltungImpl : Boolean get(int)
+SchaltungImpl : Boolean[] calc(Boolean[])
+
+
+Taster : Boolean state
+Taster : Boolean[] calc(Boolean[])
+Taster : set(Boolean)
+
+Led : Boolean state
+Led : Boolean[] calc(Boolean[])
+Led : Boolean getState()
+
+FF : Boolean state
+FF : Boolean[] calc(Boolean[])
+
+Schaltung <|-- SchaltungImpl
+SchaltungImpl <|-- Taster
+SchaltungImpl <|-- Led
+SchaltungImpl <|-- FF
+@enduml
