@@ -163,7 +163,7 @@ public class Labyrinth {
 	}
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		//System.out.println("Anzahl Wege: " + sucheAlle(1, 1, lesen(Path.of("src/labyrinth/l1.txt"))));
-		System.out.println(suchen(1, 1, lesen(Path.of("src/labyrinth/l2.txt"))));
+		System.out.println("Anzahl Wege: " + sucheAlle(1, 1, lesen(Path.of("src/labyrinth/l2.txt"))));
+		//System.out.println(suchen(1, 1, lesen(Path.of("src/labyrinth/l2.txt"))));
 	}
 }
