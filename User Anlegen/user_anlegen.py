@@ -5,6 +5,7 @@ import openpyxl
 import unicodedata
 import random
 import logging.handlers
+from unidecode import unidecode
 
 verbose = False
 quiet = False
@@ -31,9 +32,10 @@ def replace_normalize(s):
         'ß': 'ss',
         ' ': '_'
     }
+    s = unidecode(s)
     for umlaut, replacement in replacements.items():
         s = s.replace(umlaut, replacement)
-    return unicodedata.normalize('NFC', unicodedata.normalize('NFD', ''.join(char for char in s)))
+    return s
 
 def create_delete_user(name, create, delete):
     logger.info(f"Creating user: {name}")
@@ -69,6 +71,7 @@ echo {name}:{pwd} | chpasswd"""
     print(command, file=create)
 
 def delete_user(name, delete):
+    name = replace_normalize(name).lower()
     logger.info(f"Lösche: {name}")
     if verbose: print(f"echo lösche {name}", file=delete)
     print(f"userdel -r {replace_normalize(name).lower()}", file=delete)
@@ -102,7 +105,7 @@ def read_excel(file):
         b = openpyxl.load_workbook(file)
         s = b[b.sheetnames[0]]
         for row in s.iter_rows():
-            if row[0].value is not None and row[0].value != "Klasse":
+            if row[0].value is not None and row[0].value != "firstname":
                 yield [str(row[i].value) for i in range(4)]
     except:
         logger.error("Datei nicht vorhanden")
@@ -112,7 +115,7 @@ def save_excel(wb):
     wb.save("user_credentials.xlsx")
 
 def correct_name(name, names):
-    name = replace_normalize(name)
+    name = replace_normalize(name).lower()
     if name not in names:
         names.add(name)
         return name
@@ -121,6 +124,7 @@ def correct_name(name, names):
         if f"{i}{name}" not in names:
             names.add(f"{i}{name}")
             return f"{i}{name}"
+        i += 1
 
 def create_skripts(file):
     logger.info("Skriptgenerierung startet")
@@ -132,13 +136,6 @@ def create_skripts(file):
         print("set -e", file=create)
         print("#!/bin/bash", file=delete)
         print("set -e", file=delete)
-
-        print("mkdir /home/klassen", file=create)
-
-        create_delete_user("lehrer", create, delete)
-        add_credential(cred_sh, "lehrer", "lehrer", 2)
-        create_delete_user("seminar", create, delete)
-        add_credential(cred_sh, "seminar", "seminar", 3)
 
         names = set()
         pwds = set()
