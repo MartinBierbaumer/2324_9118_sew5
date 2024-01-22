@@ -3,6 +3,7 @@ import logging
 import sys
 import openpyxl
 import unicodedata
+import random
 
 verbose = False
 quiet = False
@@ -86,6 +87,11 @@ def add_credential(sheet, name, pwd, row):
     sheet[f"A{row}"] = name
     sheet[f"B{row}"] = pwd
 
+def generate_pwd(klasse, nummer, kv):
+    logger.info("generiere Passwort")
+    rand = ["!%&(),._-=^#"[random.randint(0,11)] for i in range(3)]
+    return f"{klasse}{rand[0]}{nummer}{rand[1]}{kv}{rand[2]}"
+
 def create_skripts(file):
     logger.info("Skriptgenerierung startet")
 
@@ -103,6 +109,9 @@ def create_skripts(file):
         add_credential(cred_sh, "lehrer", 2, "lehrer")
         create_delete_user("seminar", create, delete)
         add_credential(cred_sh, "seminar", 3, "seminar")
+
+        for i in read_excel(file):
+            pwd = generate_pwd(str(i[0]).lower(), str(i[1]).lower(), str(i[2]).lower())
 
 def start_logging(verbose, quiet):
     if quiet:
