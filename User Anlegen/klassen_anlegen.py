@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 import openpyxl
+import unicodedata
 
 verbose = False
 quiet = False
@@ -16,6 +17,20 @@ stream_handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 logger.addHandler(stream_handler)
+
+def replace_normalize(s):
+    replacements = {
+        'ä': 'ae',
+        'ö': 'oe',
+        'ü': 'ue',
+        'Ä': 'Ae',
+        'Ö': 'Oe',
+        'Ü': 'Ue',
+        'ß': 'ss'
+    }
+    for umlaut, replacement in replacements.items():
+        s = s.replace(umlaut, replacement)
+    return unicodedata.normalize('NFC', unicodedata.normalize('NFD', ''.join(char for char in s)))
 
 def create_delete_user(name, create, delete):
     logger.info(f"Creating user: {name}")
@@ -35,15 +50,12 @@ echo {name}:{name} | chpasswd"""
 
 
 
-def create_user(data, create, pwd):
-    name = str(data[0])
-    pwd = str(data[1])
-
+def create_user(name, create, pwd):
     logger.info(f"Erstelle {name}")
     if verbose: print(f"echo erstelle {name}", file=create)
 
-    #name = replace_umlaut(name).lower()
-    #pwd = escape_quote(pwd)
+    name = replace_normalize(name).lower()
+    pwd = pwd.replace("'", "\\'").replace('"', '\\"').replace("`", "\\`")
 
     command = f"""
 getent passwd {name} > /dev/null && echo '{name} existiert schon, Abbrcuh' && exit 1
@@ -56,7 +68,7 @@ echo {name}:{pwd} | chpasswd"""
 def delete_user(name, delete):
     logger.info(f"Lösche: {name}")
     if verbose: print(f"echo lösche {name}", file=delete)
-    print(f"userdel -r {replace_umlaut(name).lower()}", file=delete)
+    print(f"userdel -r {replace_normalize(name).lower()}", file=delete)
 
 
 def create_credentials():
