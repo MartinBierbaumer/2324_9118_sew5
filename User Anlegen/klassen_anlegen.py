@@ -98,7 +98,7 @@ def read_excel(file):
         b = openpyxl.load_workbook(file)
         s = b[b.sheetnames[0]]
         for row in s.iter_rows():
-            if row[0].value is not None and row[0] != "Klasse":
+            if row[0].value is not None and row[0].value != "Klasse":
                 yield [row[i].value for i in range(3)]
     except:
         logger.error("Datei nicht vorhanden")
@@ -127,6 +127,7 @@ def create_skripts(file):
 
         r = 4
         for i in read_excel(file):
+            i[0] = f"k{i[0]}"
             pwd = generate_pwd(str(i[0]).lower(), str(i[1]).lower(), str(i[2]).lower())
             create_user(str(i[0]), create, pwd)
             delete_user(str(i[0]), delete)
