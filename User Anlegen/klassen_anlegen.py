@@ -3,6 +3,9 @@ import logging
 import sys
 import openpyxl
 
+verbose = False
+quiet = False
+
 logger = logging.getLogger(__name__)
 handler = logging.handlers.RotatingFileHandler("create_class.log", maxBytes=10000, backupCount=5)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -15,7 +18,28 @@ logger.addHandler(handler)
 logger.addHandler(stream_handler)
 
 def create_delete_user(name, create, delete):
-    return None
+    logger.info(f"Creating user: {name}")
+    if verbose: print(f"echo creating user: {name}", file=create)
+
+    command = f"""
+getent passwd {name} > /dev/null && echo '{name} existiert schon, Abbrcuh' && exit 1
+groupadd {name}
+useradd -m -d /home/{name} -c {name} -g {name} -s /bin/bash {name}
+echo {name}:{name} | chpasswd"""
+
+    print(command, file=create)
+
+    logger.info(f"Lösche {name}")
+    if verbose: print(f"lösche {name}", file=delete)
+    print(f"userdel -r {name}", file=delete)
+
+
+
+def create_user(name, create, pwd):
+
+
+def delete_user(name, delete):
+
 
 
 def create_credentials():
@@ -59,7 +83,6 @@ def start_logging(verbose, quiet):
     else:
         logger.setLevel(logging.INFO)
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", type=str, help="filename")
@@ -67,7 +90,10 @@ def main():
     parser.add_argument("-q", "--quiet", action="store_true", help="activates quite mode")
     args = parser.parse_args()
 
-    start_logging(args.verbose, args.quiet)
+    verbose = args.verbose
+    quiet = args.quiet
+
+    start_logging(verbose, quiet)
     try:
         create_skripts(args.filename)
     except FileNotFoundError:
