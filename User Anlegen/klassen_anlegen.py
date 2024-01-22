@@ -35,11 +35,28 @@ echo {name}:{name} | chpasswd"""
 
 
 
-def create_user(name, create, pwd):
+def create_user(data, create, pwd):
+    name = str(data[0])
+    pwd = str(data[1])
 
+    logger.info(f"Erstelle {name}")
+    if verbose: print(f"echo erstelle {name}", file=create)
+
+    #name = replace_umlaut(name).lower()
+    #pwd = escape_quote(pwd)
+
+    command = f"""
+getent passwd {name} > /dev/null && echo '{name} existiert schon, Abbrcuh' && exit 1
+groupadd {name}
+useradd -m -d /home/{name} -c {name} -g {name} -s /bin/bash {name} -G cdrom,plugdev,sambashare
+echo {name}:{pwd} | chpasswd"""
+
+    print(command, file=create)
 
 def delete_user(name, delete):
-
+    logger.info(f"Lösche: {name}")
+    if verbose: print(f"echo lösche {name}", file=delete)
+    print(f"userdel -r {replace_umlaut(name).lower()}", file=delete)
 
 
 def create_credentials():
