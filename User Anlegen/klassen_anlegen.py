@@ -4,6 +4,7 @@ import sys
 import openpyxl
 import unicodedata
 import random
+import logging.handlers
 
 verbose = False
 quiet = False
@@ -92,6 +93,20 @@ def generate_pwd(klasse, nummer, kv):
     rand = ["!%&(),._-=^#"[random.randint(0,11)] for i in range(3)]
     return f"{klasse}{rand[0]}{nummer}{rand[1]}{kv}{rand[2]}"
 
+def read_excel(file):
+    try:
+        b = openpyxl.load_workbook(file)
+        s = b[b.sheetnames[0]]
+        for row in s.iter_rows():
+            if row[0].value is not None and row[0] != "Klasse":
+                yield [row[i].value for i in range(3)]
+    except:
+        logger.error("Datei nicht vorhanden")
+
+def save_excel(wb):
+    logger.info("pwd speichern")
+    wb.save("user_credentials.xlsx")
+
 def create_skripts(file):
     logger.info("Skriptgenerierung startet")
 
@@ -106,12 +121,20 @@ def create_skripts(file):
         print("mkdir /home/klassen", file=create)
 
         create_delete_user("lehrer", create, delete)
-        add_credential(cred_sh, "lehrer", 2, "lehrer")
+        add_credential(cred_sh, "lehrer", "lehrer", 2)
         create_delete_user("seminar", create, delete)
-        add_credential(cred_sh, "seminar", 3, "seminar")
+        add_credential(cred_sh, "seminar", "seminar", 3)
 
+        r = 4
         for i in read_excel(file):
             pwd = generate_pwd(str(i[0]).lower(), str(i[1]).lower(), str(i[2]).lower())
+            create_user(str(i[0]), create, pwd)
+            delete_user(str(i[0]), delete)
+            add_credential(cred_sh, str(i[0]), pwd, r)
+            r += 1
+
+    save_excel(cred_wb)
+    logger.info("Alles erstellt")
 
 def start_logging(verbose, quiet):
     if quiet:
