@@ -140,19 +140,19 @@ def create_skripts(file):
         names = set()
         pwds = set()
 
-        r = 4
+        r = 2
         for i in read_excel(file):
             i[1] = correct_name(i[1], names).lower()
             pwd = generate_pwd(pwds)
             create_user(str(i[1]), create, pwd)
             delete_user(str(i[1]), delete)
-            add_credential(cred_sh, str(i[0]), pwd, r)
+            add_credential(cred_sh, str(i[1]), pwd, r)
             r += 1
 
     save_excel(cred_wb)
     logger.info("Alles erstellt")
 
-def start_logging(verbose, quiet):
+def start_logging():
     if quiet:
         logger.setLevel(logging.ERROR)
     elif verbose:
@@ -167,10 +167,11 @@ def main():
     parser.add_argument("-q", "--quiet", action="store_true", help="activates quite mode")
     args = parser.parse_args()
 
+    global verbose, quiet
     verbose = args.verbose
     quiet = args.quiet
 
-    start_logging(verbose, quiet)
+    start_logging()
     try:
         create_skripts(args.filename)
     except FileNotFoundError:
